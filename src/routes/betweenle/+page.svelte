@@ -8,7 +8,9 @@
 	let wordIndex = Math.floor(Math.random() * words.length);
 	let word = words[wordIndex];
 
-	let wonWords = browser ? new Set(JSON.parse(localStorage.getItem('betweenle:wins') ?? '[]')) : [];
+	let wonWords = browser
+		? new Set(JSON.parse(localStorage.getItem('betweenle:wins') ?? '[]'))
+		: new Set();
 
 	let upper = 'aaaaa';
 	$: upperIndex = upper === 'aaaaa' ? 0 : guessable.indexOf(upper);
@@ -165,7 +167,7 @@
 
 	<button on:click={reset} class:invisible={!win && !lose} disabled={!win && !lose}> Next </button>
 
-	<h3>Wins</h3>
+	<h3>{wonWords.size || 'no'} wins</h3>
 	<ol>
 		{#each wonWords.values() as word}
 			<li>{word}</li>
