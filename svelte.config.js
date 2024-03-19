@@ -9,10 +9,7 @@ const config = {
 		paths: {
 			base: '/wordle'
 		},
-		appDir: 'app',
-		version: {
-			name: child_process.execSync('git rev-parse HEAD').toString().trim().substring(0, 7)
-		}
+		appDir: 'app'
 	}
 };
 
