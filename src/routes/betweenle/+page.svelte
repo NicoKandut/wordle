@@ -9,11 +9,6 @@
 
 	$: renderedAttempt = ($store.attempt + '•').padEnd(5).substring(0, 5);
 
-	const reset = () => {
-		store.reset();
-		inputField.focus();
-	};
-
 	const getAttemptClass = (letter: string) => {
 		if (letter === '•') {
 			return 'dot';
@@ -32,7 +27,6 @@
 			return;
 		}
 
-		// is backspace
 		if (event.key === 'Backspace') {
 			store.removeLetter();
 			return;
@@ -44,6 +38,29 @@
 	onMount(() => {
 		inputField.focus();
 	});
+
+	const getAlphabetEnabled = (
+		letter: string,
+		attempt: string,
+		upperWord: string,
+		lowerWord: string
+	) => {
+		const index = attempt.length;
+
+		if (upperWord.substring(0, index) === lowerWord.substring(0, index)) {
+			return upperWord[index] <= letter && lowerWord[index] >= letter;
+		}
+
+		if (upperWord.substring(0, index) === attempt.substring(0, index)) {
+			return upperWord[index] <= letter;
+		}
+
+		if (lowerWord.substring(0, index) === attempt.substring(0, index)) {
+			return lowerWord[index] >= letter;
+		}
+
+		return true;
+	};
 </script>
 
 <input bind:this={inputField} type="text" on:keydown={inputListener} class="hidden" />
@@ -85,6 +102,7 @@
 	<div class="keys">
 		{#each 'abcdefghijklmnopqrstuvwxyz' as letter}
 			<button
+				disabled={!getAlphabetEnabled(letter, $store.attempt, $store.upperWord, $store.lowerWord)}
 				on:click={() => {
 					inputListener(new KeyboardEvent('keypress', { key: letter }));
 					inputField.focus();
@@ -161,12 +179,16 @@
 		text-align: center;
 	}
 
-	.keys button:hover {
+	.keys button:not(:disabled):hover {
 		background-color: black;
 	}
 
-	.keys button:active {
+	.keys button:not(:disabled):active {
 		background-color: darkgray;
+	}
+
+	.keys button:disabled {
+		background-color: lightgray;
 	}
 
 	ol {

@@ -68,6 +68,7 @@ const createStore = () => {
 				if (state.attempt.length === 5) {
 					if (state.attempt === state.targetWord) {
 						state.win = true;
+						state.ended = true;
 						winsStore.addWin(state.targetWord);
 						return state;
 					}
@@ -81,10 +82,8 @@ const createStore = () => {
 						!typeableWords.includes(state.attempt)
 					) {
 						state.incorrect = true;
-						console.log('incorrect');
 						setTimeout(() => {
 							update((state) => {
-								console.log('gone');
 								state.incorrect = false;
 								return state;
 							});
@@ -109,8 +108,16 @@ const createStore = () => {
 							state.distanceUpper = state.targetIndex - state.upperIndex;
 						}
 
+						state.attempt = '';
+
 						return state;
 					}
+				}
+
+				if (state.currentGuess >= state.maxGuesses) {
+					state.lose = true;
+					state.ended = true;
+					return state;
 				}
 
 				return state;
