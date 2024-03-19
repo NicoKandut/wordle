@@ -1,25 +1,20 @@
 <script lang="ts">
-	export let max: number;
-	export let current: number;
-	export let win: boolean;
-	export let lose: boolean;
+	import store from './betweenle.store';
 
 	const getGuessClass = (guess: number): string => {
-		if (guess < current) {
+		if (guess < $store.currentGuess) {
 			return 'past';
-		} else if (guess === current) {
-			return win ? 'win' : lose ? 'lose' : 'current';
+		} else if (guess === $store.currentGuess) {
+			return $store.win ? 'win' : $store.lose ? 'lose' : 'current';
 		} else {
 			return 'future';
 		}
 	};
 
-	let guesses = Array.from({ length: max }, (_, i) => i + 1).map(getGuessClass);
+	let guesses = Array.from({ length: $store.maxGuesses }, (_, i) => i + 1).map(getGuessClass);
 
 	$: {
-		if (current) {
-			guesses = Array.from({ length: max }, (_, i) => i + 1).map(getGuessClass);
-		}
+		guesses = Array.from({ length: $store.maxGuesses }, (_, i) => i + 1).map(getGuessClass);
 	}
 </script>
 
@@ -36,9 +31,7 @@
 		gap: 0.5rem;
 	}
 
-	.past,
-	.current,
-	.future {
+	span {
 		height: 1rem;
 		width: 1rem;
 		border-radius: 0.5rem;

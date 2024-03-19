@@ -38,7 +38,7 @@ const initial = (): Store => {
 
 		// guesses
 		currentGuess: 1,
-		maxGuesses: 15,
+		maxGuesses: 2,
 
 		// distance
 		distanceUpper: targetIndex,
@@ -93,8 +93,14 @@ const createStore = () => {
 
 					const targetComparison = state.attempt.localeCompare(state.targetWord);
 					if (targetComparison !== 0) {
+						if (state.currentGuess >= state.maxGuesses) {
+							state.lose = true;
+							state.ended = true;
+							return state;
+						}
+
 						state.visible = true;
-						state.currentGuess++;
+						state.currentGuess = state.currentGuess + 1;
 
 						if (targetComparison > 0) {
 							state.lowerWord = state.attempt;
@@ -112,12 +118,6 @@ const createStore = () => {
 
 						return state;
 					}
-				}
-
-				if (state.currentGuess >= state.maxGuesses) {
-					state.lose = true;
-					state.ended = true;
-					return state;
 				}
 
 				return state;

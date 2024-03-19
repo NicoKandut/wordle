@@ -27,7 +27,7 @@
 			return;
 		}
 
-		if (event.key === 'Backspace') {
+		if (event.key === 'Backspace' && !$store.ended) {
 			store.removeLetter();
 			return;
 		}
@@ -68,18 +68,13 @@
 <section class="page">
 	<h1>Betweenle</h1>
 
-	<History
-		max={$store.maxGuesses}
-		current={$store.currentGuess}
-		win={$store.win}
-		lose={$store.lose}
-	/>
+	<History />
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<section class="game" on:click={() => inputField.focus()}>
 		<Meter />
-		<div class="board" class:win={$store.win}>
+		<div class="board" class:win={$store.win} class:lose={$store.lose}>
 			<div class="upper">
 				{#each $store.upperWord as letter}
 					<span>{letter}</span>
@@ -277,6 +272,10 @@
 
 	.win .entered {
 		background-color: green;
+	}
+
+	.lose .entered {
+		background-color: red;
 	}
 
 	.incorrect {
