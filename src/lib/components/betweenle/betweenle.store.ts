@@ -17,6 +17,7 @@ interface Store {
 	win: boolean;
 	lose: boolean;
 	incorrect: boolean;
+	correct: string;
 	visible: boolean;
 	ended: boolean;
 }
@@ -38,7 +39,7 @@ const initial = (): Store => {
 
 		// guesses
 		currentGuess: 1,
-		maxGuesses: 2,
+		maxGuesses: 15,
 
 		// distance
 		distanceUpper: targetIndex,
@@ -48,6 +49,7 @@ const initial = (): Store => {
 		win: false,
 		lose: false,
 		incorrect: false,
+		correct: '',
 		visible: false,
 		ended: false
 	};
@@ -106,15 +108,29 @@ const createStore = () => {
 							state.lowerWord = state.attempt;
 							state.lowerIndex = typeableWords.indexOf(state.attempt);
 							state.distanceLower = state.lowerIndex - state.targetIndex;
+							state.correct = 'down';
+							setTimeout(() => {
+								update((state) => {
+									state.correct = '';
+									state.attempt = '';
+									return state;
+								});
+							}, 300);
 						}
 
 						if (targetComparison < 0) {
 							state.upperWord = state.attempt;
 							state.upperIndex = typeableWords.indexOf(state.attempt);
 							state.distanceUpper = state.targetIndex - state.upperIndex;
+							state.correct = 'up';
+							setTimeout(() => {
+								update((state) => {
+									state.correct = '';
+									state.attempt = '';
+									return state;
+								});
+							}, 300);
 						}
-
-						state.attempt = '';
 
 						return state;
 					}

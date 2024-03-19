@@ -80,7 +80,7 @@
 					<span>{letter}</span>
 				{/each}
 			</div>
-			<div class="attempt" class:incorrect={$store.incorrect}>
+			<div class="attempt {$store.correct}" class:incorrect={$store.incorrect}>
 				{#each renderedAttempt as letter}
 					<span class={getAttemptClass(letter)}>{letter}</span>
 				{/each}
@@ -294,6 +294,32 @@
 		}
 		100% {
 			transform: translate(0, 0);
+		}
+	}
+
+	.up {
+		animation: up 0.3s ease-out;
+	}
+
+	.down {
+		animation: down 0.3s ease-out;
+	}
+
+	@keyframes up {
+		from {
+			transform: translate(0, 0);
+		}
+		to {
+			transform: translate(0, -4.5rem);
+		}
+	}
+
+	@keyframes down {
+		from {
+			transform: translate(0, 0);
+		}
+		to {
+			transform: translate(0, 4.5rem);
 		}
 	}
 </style>
