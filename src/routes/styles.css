@@ -30,6 +30,10 @@ body {
 		linear-gradient(180deg, var(--color-bg-0) 0%, var(--color-bg-1) 15%, var(--color-bg-2) 50%);
 }
 
+:root {
+	box-sizing: border-box;
+}
+
 h1,
 h2,
 p {
