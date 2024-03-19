@@ -49,7 +49,7 @@
 	}
 
 	.current {
-		background-color: orange;
+		background-color: darkorange;
 	}
 
 	.win {

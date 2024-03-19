@@ -1,60 +1,20 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { onDestroy, onMount } from 'svelte';
-	import { guessable, words } from '$lib/words';
+	import { onMount } from 'svelte';
 	import Meter from '$lib/components/betweenle/Meter.svelte';
 	import History from '$lib/components/betweenle/History.svelte';
-
-	let wordIndex = Math.floor(Math.random() * words.length);
-	let word = words[wordIndex];
-
-	let wonWords = browser
-		? new Set(JSON.parse(localStorage.getItem('betweenle:wins') ?? '[]'))
-		: new Set();
-
-	let upper = 'aaaaa';
-	$: upperIndex = upper === 'aaaaa' ? 0 : guessable.indexOf(upper);
-	let lower = 'zzzzz';
-	$: lowerIndex = lower === 'zzzzz' ? guessable.length : guessable.indexOf(lower);
-	let attempt = '';
+	import store from '../../lib/components/betweenle/betweenle.store';
+	import winStore from '$lib/components/betweenle/betweenle-wins.store';
 
 	let inputField: HTMLInputElement;
 
-	let win = false;
-	let lose = false;
-	let incorrect = false;
-	let visible = false;
-	let maxGuesses = 15;
-	let currentGuess = 1;
-
-	$: distanceUpper =
-		Math.round(((guessable.indexOf(word) - upperIndex) / guessable.length) * 10000) / 100;
-	$: distanceLower =
-		Math.round(((lowerIndex - guessable.indexOf(word)) / guessable.length) * 10000) / 100;
-
-	console.log(distanceUpper);
-	console.log(distanceLower);
-
-	$: renderedAttempt = (attempt + '•').padEnd(5).substring(0, 5);
-	$: {
-		if (incorrect) {
-			setTimeout(() => {
-				incorrect = false;
-			}, 100);
-		}
-	}
+	$: renderedAttempt = ($store.attempt + '•').padEnd(5).substring(0, 5);
 
 	const reset = () => {
-		win = false;
-		lose = false;
-		attempt = '';
-		upper = 'aaaaa';
-		lower = 'zzzzz';
-		wordIndex = Math.floor(Math.random() * words.length);
-		currentGuess = 1;
+		store.reset();
+		inputField.focus();
 	};
 
-	function getAttemptClass(letter: string): string | null | undefined {
+	const getAttemptClass = (letter: string) => {
 		if (letter === '•') {
 			return 'dot';
 		}
@@ -64,69 +24,21 @@
 		}
 
 		return 'entered';
-	}
+	};
 
 	const inputListener = (event: KeyboardEvent) => {
-		incorrect = false;
-
 		if (event.key === 'Enter') {
-			if (win || lose) {
-				reset();
-				return;
-			}
-
-			if (attempt.length === 5) {
-				if (attempt === word) {
-					win = true;
-					wonWords.add(word);
-					localStorage.setItem('betweenle:wins', JSON.stringify(Array.from(wonWords)));
-					return;
-				}
-
-				if (attempt.localeCompare(upper) <= 0) {
-					incorrect = true;
-					return;
-				}
-
-				if (attempt.localeCompare(lower) >= 0) {
-					incorrect = true;
-					return;
-				}
-
-				if (!guessable.includes(attempt)) {
-					incorrect = true;
-					return;
-				}
-
-				if (attempt.localeCompare(word) > 0) {
-					lower = attempt;
-					attempt = '';
-					visible = true;
-					currentGuess++;
-					return;
-				}
-
-				if (attempt.localeCompare(word) < 0) {
-					upper = attempt;
-					attempt = '';
-					visible = true;
-					currentGuess++;
-					return;
-				}
-			}
+			store.submit();
+			return;
 		}
 
 		// is backspace
 		if (event.key === 'Backspace') {
-			if (attempt.length > 0) {
-				attempt = attempt.slice(0, -1);
-			}
+			store.removeLetter();
 			return;
 		}
 
-		if (attempt.length < 5 && event.key.length === 1 && event.key.match(/[a-z]/)) {
-			attempt += event.key;
-		}
+		store.addLetter(event.key);
 	};
 
 	onMount(() => {
@@ -139,25 +51,30 @@
 <section class="page">
 	<h1>Betweenle</h1>
 
-	<History max={maxGuesses} current={currentGuess} {win} {lose} />
+	<History
+		max={$store.maxGuesses}
+		current={$store.currentGuess}
+		win={$store.win}
+		lose={$store.lose}
+	/>
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<section class="game" on:click={() => inputField.focus()}>
-		<Meter {visible} {distanceUpper} {distanceLower} />
-		<div class="board" class:win>
+		<Meter />
+		<div class="board" class:win={$store.win}>
 			<div class="upper">
-				{#each upper as letter}
+				{#each $store.upperWord as letter}
 					<span>{letter}</span>
 				{/each}
 			</div>
-			<div class="attempt" class:incorrect>
+			<div class="attempt" class:incorrect={$store.incorrect}>
 				{#each renderedAttempt as letter}
 					<span class={getAttemptClass(letter)}>{letter}</span>
 				{/each}
 			</div>
 			<div class="lower">
-				{#each lower as letter}
+				{#each $store.lowerWord as letter}
 					<span>{letter}</span>
 				{/each}
 			</div>
@@ -165,11 +82,32 @@
 		<div></div>
 	</section>
 
-	<button on:click={reset} class:invisible={!win && !lose} disabled={!win && !lose}> Next </button>
+	<div class="keys">
+		{#each 'abcdefghijklmnopqrstuvwxyz' as letter}
+			<button
+				on:click={() => {
+					inputListener(new KeyboardEvent('keypress', { key: letter }));
+					inputField.focus();
+				}}
+			>
+				{letter}
+			</button>
+		{/each}
+	</div>
 
-	<h3>{wonWords.size || 'no'} wins</h3>
+	<button
+		id="main-button"
+		on:click={() => {
+			inputListener(new KeyboardEvent('keypress', { key: 'Enter' }));
+			inputField.focus();
+		}}
+	>
+		{$store.ended ? 'Next' : 'Guess'}
+	</button>
+
+	<h3>{$winStore.size || 'no'} wins</h3>
 	<ol>
-		{#each wonWords.values() as word}
+		{#each $winStore.values() as word}
 			<li>{word}</li>
 		{/each}
 	</ol>
@@ -181,8 +119,54 @@
 		opacity: 0;
 	}
 
+	#main-button {
+		width: 10rem;
+		height: 3rem;
+		background-color: darkorange;
+		color: white;
+		border: unset;
+		border-radius: 0.5rem;
+		font-size: 18px;
+		text-transform: uppercase;
+		font-weight: bold;
+	}
+
+	#main-button:hover {
+		background-color: orange;
+	}
+
+	#main-button:active {
+		background-color: darkorange;
+	}
+
 	.invisible {
 		opacity: 0;
+	}
+
+	.keys {
+		display: grid;
+		grid-template-columns: repeat(13, 1fr);
+	}
+
+	.keys button {
+		background-color: grey;
+		color: white;
+		width: 2rem;
+		height: 2rem;
+		border: unset;
+		border-radius: 1rem;
+		font-size: 18px;
+		text-transform: uppercase;
+		line-height: 1.9rem;
+		text-align: center;
+	}
+
+	.keys button:hover {
+		background-color: black;
+	}
+
+	.keys button:active {
+		background-color: darkgray;
 	}
 
 	ol {
