@@ -190,6 +190,7 @@
 		flex-wrap: wrap;
 		max-width: 25.5rem;
 		gap: 0.5rem;
+		justify-content: center;
 	}
 
 	li {
