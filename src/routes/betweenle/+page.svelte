@@ -2,9 +2,13 @@
 	import { browser } from '$app/environment';
 	import { onDestroy, onMount } from 'svelte';
 	import { guessable, words } from '$lib/words';
+	import Meter from '$lib/components/betweenle/Meter.svelte';
+	import History from '$lib/components/betweenle/History.svelte';
 
 	let wordIndex = Math.floor(Math.random() * words.length);
 	let word = words[wordIndex];
+
+	let wonWords = browser ? new Set(JSON.parse(localStorage.getItem('betweenle:wins') ?? '[]')) : [];
 
 	let upper = 'aaaaa';
 	$: upperIndex = upper === 'aaaaa' ? 0 : guessable.indexOf(upper);
@@ -12,8 +16,14 @@
 	$: lowerIndex = lower === 'zzzzz' ? guessable.length : guessable.indexOf(lower);
 	let attempt = '';
 
+	let inputField: HTMLInputElement;
+
 	let win = false;
+	let lose = false;
 	let incorrect = false;
+	let visible = false;
+	let maxGuesses = 15;
+	let currentGuess = 1;
 
 	$: distanceUpper =
 		Math.round(((guessable.indexOf(word) - upperIndex) / guessable.length) * 10000) / 100;
@@ -32,6 +42,16 @@
 		}
 	}
 
+	const reset = () => {
+		win = false;
+		lose = false;
+		attempt = '';
+		upper = 'aaaaa';
+		lower = 'zzzzz';
+		wordIndex = Math.floor(Math.random() * words.length);
+		currentGuess = 1;
+	};
+
 	function getAttemptClass(letter: string): string | null | undefined {
 		if (letter === '•') {
 			return 'dot';
@@ -47,40 +67,50 @@
 	const inputListener = (event: KeyboardEvent) => {
 		incorrect = false;
 
-		if (event.key === 'Enter' && attempt.length === 5) {
-			if (attempt === word) {
-				win = true;
-				const wonWords = new Set(JSON.parse(localStorage.getItem('betweenle:wins') ?? '[]'));
-				wonWords.add(word);
-				localStorage.setItem('betweenle:wins', JSON.stringify(Array.from(wonWords)));
+		if (event.key === 'Enter') {
+			if (win || lose) {
+				reset();
 				return;
 			}
 
-			if (attempt.localeCompare(upper) <= 0) {
-				incorrect = true;
-				return;
-			}
+			if (attempt.length === 5) {
+				if (attempt === word) {
+					win = true;
+					wonWords.add(word);
+					localStorage.setItem('betweenle:wins', JSON.stringify(Array.from(wonWords)));
+					return;
+				}
 
-			if (attempt.localeCompare(lower) >= 0) {
-				incorrect = true;
-				return;
-			}
+				if (attempt.localeCompare(upper) <= 0) {
+					incorrect = true;
+					return;
+				}
 
-			if (!guessable.includes(attempt)) {
-				incorrect = true;
-				return;
-			}
+				if (attempt.localeCompare(lower) >= 0) {
+					incorrect = true;
+					return;
+				}
 
-			if (attempt.localeCompare(word) > 0) {
-				lower = attempt;
-				attempt = '';
-				return;
-			}
+				if (!guessable.includes(attempt)) {
+					incorrect = true;
+					return;
+				}
 
-			if (attempt.localeCompare(word) < 0) {
-				upper = attempt;
-				attempt = '';
-				return;
+				if (attempt.localeCompare(word) > 0) {
+					lower = attempt;
+					attempt = '';
+					visible = true;
+					currentGuess++;
+					return;
+				}
+
+				if (attempt.localeCompare(word) < 0) {
+					upper = attempt;
+					attempt = '';
+					visible = true;
+					currentGuess++;
+					return;
+				}
 			}
 		}
 
@@ -98,31 +128,21 @@
 	};
 
 	onMount(() => {
-		browser && document.addEventListener('keydown', inputListener);
-	});
-
-	onDestroy(() => {
-		browser && document.removeEventListener('keydown', inputListener);
+		inputField.focus();
 	});
 </script>
 
+<input bind:this={inputField} type="text" on:keydown={inputListener} class="hidden" />
+
 <section class="page">
-	<section class="game">
-		<div class="meter">
-			<span>
-				{upper === 'aaaaa' ? '?' : distanceUpper}
-			</span>
-			<div class="connector">
-				<div class="line"></div>
-				<div
-					class="marker"
-					style="top: {(distanceUpper / (distanceUpper + distanceLower)) * 100}%;"
-				/>
-			</div>
-			<span>
-				{lower === 'zzzzz' ? '?' : distanceLower}
-			</span>
-		</div>
+	<h1>Betweenle</h1>
+
+	<History max={maxGuesses} current={currentGuess} {win} {lose} />
+
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<section class="game" on:click={() => inputField.focus()}>
+		<Meter {visible} {distanceUpper} {distanceLower} />
 		<div class="board" class:win>
 			<div class="upper">
 				{#each upper as letter}
@@ -143,18 +163,45 @@
 		<div></div>
 	</section>
 
-	{#if win}
-		<button
-			on:click={() => {
-				win = false;
-			}}
-		>
-			Next
-		</button>
-	{/if}
+	<button on:click={reset} class:invisible={!win && !lose} disabled={!win && !lose}> Next </button>
+
+	<h3>Wins</h3>
+	<ol>
+		{#each wonWords.values() as word}
+			<li>{word}</li>
+		{/each}
+	</ol>
 </section>
 
 <style>
+	.hidden {
+		position: absolute;
+		opacity: 0;
+	}
+
+	.invisible {
+		opacity: 0;
+	}
+
+	ol {
+		list-style-type: none;
+		padding-left: unset;
+		display: flex;
+		flex-wrap: wrap;
+		max-width: 25.5rem;
+		gap: 0.5rem;
+	}
+
+	li {
+		width: 6rem;
+		background-color: green;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		padding-block: 0.5rem;
+		font-weight: bold;
+	}
+
 	div {
 		display: flex;
 		gap: 0.5rem;
@@ -170,67 +217,13 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		gap: 1rem;
 	}
 
 	.game {
 		display: grid;
 		grid-template-columns: 4rem 22rem 4rem;
 		gap: 1rem;
-	}
-
-	.meter {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	.meter .connector {
-		position: relative;
-		flex-grow: 1;
-		width: 4px;
-		background-color: dodgerblue;
-	}
-
-	.meter .connector::before {
-		box-sizing: border-box;
-		content: '';
-		position: absolute;
-		top: -0.5rem;
-		left: -8px;
-		width: 20px;
-		height: 20px;
-		border: solid 10px transparent;
-		border-top-color: dodgerblue;
-	}
-
-	.meter .connector::after {
-		box-sizing: border-box;
-		content: '';
-		position: absolute;
-		bottom: -0.5rem;
-		left: -8px;
-		width: 20px;
-		height: 20px;
-		border: solid 10px transparent;
-		border-bottom-color: dodgerblue;
-	}
-
-	.meter span {
-		width: 4rem;
-		height: 3rem;
-		background-color: dodgerblue;
-		font-size: 18px;
-	}
-
-	.meter .marker {
-		position: absolute;
-		height: 12px;
-		width: 12px;
-		background-color: orange;
-		left: -4px;
-		border-radius: 8px;
-		z-index: 1;
-		transform: translateY(-50%);
 	}
 
 	span {
@@ -266,6 +259,7 @@
 	.dot,
 	.empty {
 		border: solid black 2px;
+		color: black;
 	}
 
 	.entered {

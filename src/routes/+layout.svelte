@@ -2,10 +2,25 @@
 	import './styles.css';
 </script>
 
-<header>Navigation</header>
+<div>
+	<header>Navigation</header>
 
-<main>
-	<slot />
-</main>
+	<main>
+		<slot />
+	</main>
 
-<footer>Footer stuff</footer>
+	<footer>Footer stuff</footer>
+</div>
+
+<style>
+	div {
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		align-items: center;
+		gap: 2rem;
+	}
+	main {
+		flex-grow: 1;
+	}
+</style>
