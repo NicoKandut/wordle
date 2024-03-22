@@ -3,9 +3,31 @@
 	export let letter: string;
 	export let index: number;
 
+	const getAlphabetEnabled = (
+		letter: string,
+		attempt: string,
+		upperWord: string,
+		lowerWord: string,
+		index: number
+	) => {
+		if (upperWord.substring(0, index) === lowerWord.substring(0, index)) {
+			return upperWord[index] <= letter && lowerWord[index] >= letter;
+		}
+
+		if (upperWord.substring(0, index) === attempt.substring(0, index)) {
+			return upperWord[index] <= letter;
+		}
+
+		if (lowerWord.substring(0, index) === attempt.substring(0, index)) {
+			return lowerWord[index] >= letter;
+		}
+
+		return true;
+	};
+
 	$: impossible =
-		$store.attempt[index] > $store.lowerWord[index] ||
-		$store.attempt[index] < $store.upperWord[index];
+		letter !== '•' &&
+		!getAlphabetEnabled(letter, $store.attempt, $store.upperWord, $store.lowerWord, index);
 </script>
 
 <span
