@@ -27,6 +27,7 @@
 
 	$: impossible =
 		letter !== '•' &&
+		letter !== ' ' &&
 		!getAlphabetEnabled(letter, $store.attempt, $store.upperWord, $store.lowerWord, index);
 </script>
 
