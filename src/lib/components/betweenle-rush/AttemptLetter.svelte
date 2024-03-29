@@ -1,5 +1,5 @@
 <script lang="ts">
-	import store from '$lib/components/betweenle/betweenle.store';
+	import store from '$lib/components/betweenle-rush/betweenle-rush.store';
 	export let letter: string;
 	export let index: number;
 

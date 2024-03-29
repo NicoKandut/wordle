@@ -36,7 +36,7 @@
 	<input bind:this={inputField} type="text" on:keydown={inputListener} class="hidden" />
 
 	<h1>Betweenle Rush</h1>
-	<p>Guess as many words as you can with 100 guesses.</p>
+	<p>Guess as many words as you can with 100 guesses</p>
 
 	<History />
 	<Board on:click={() => inputField.focus()} />
@@ -45,8 +45,6 @@
 	<button id="main-button" on:click={() => fireInput('Enter')}>
 		{$store.ended ? 'Next' : 'Guess'}
 	</button>
-
-	<p class="wins">{$store.guesses.filter((x) => x === 'correct').length} correct guesses</p>
 </section>
 
 <style>
@@ -65,6 +63,13 @@
 	h1 {
 		font-size: 3rem;
 		font-weight: bold;
+		margin-block-end: 0;
+	}
+
+	p {
+		margin-block-start: 0;
+		font-weight: bold;
+		opacity: 0.75;
 	}
 
 	#main-button {

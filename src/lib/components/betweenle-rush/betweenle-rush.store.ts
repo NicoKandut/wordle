@@ -119,9 +119,9 @@ const createStore = () => {
 							state.lowerIndex = typeableWords.indexOf(state.attempt);
 							state.distanceLower = state.lowerIndex - state.targetIndex;
 							state.correct = 'down';
+							state.guesses.push("past");
 							setTimeout(() => {
 								update((state) => {
-									state.guesses.push("past");
 									state.correct = '';
 									state.attempt = '';
 									return state;
@@ -134,9 +134,9 @@ const createStore = () => {
 							state.upperIndex = typeableWords.indexOf(state.attempt);
 							state.distanceUpper = state.targetIndex - state.upperIndex;
 							state.correct = 'up';
+							state.guesses.push("past");
 							setTimeout(() => {
 								update((state) => {
-									state.guesses.push("past");
 									state.correct = '';
 									state.attempt = '';
 									return state;

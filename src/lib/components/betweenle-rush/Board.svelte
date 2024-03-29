@@ -28,7 +28,7 @@
 			{/each}
 		</div>
 	</div>
-	<div></div>
+	<div class="score">{$store.guesses.filter((x) => x === 'correct').length}</div>
 </section>
 
 <style>
@@ -40,6 +40,32 @@
 	div.board {
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.score {
+		width: 4rem;
+		height: 4rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		place-self: center;
+		background-color: green;
+		font-size: 32px;
+		font-weight: bold;
+		text-transform: uppercase;
+		color: white;
+		font-family:
+			Arial,
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Oxygen,
+			Ubuntu,
+			Cantarell,
+			'Open Sans',
+			'Helvetica Neue',
+			sans-serif;
 	}
 
 	section {
