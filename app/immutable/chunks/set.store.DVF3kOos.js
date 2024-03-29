@@ -1,0 +1,1 @@
+import{w as i}from"./index.C5UCwSHb.js";const t=e=>new Set(JSON.parse(localStorage.getItem(e)??"[]")),l=e=>{const{subscribe:a,set:n,update:o}=i(t(e));return{subscribe:a,reset:()=>n(t(e)),addWin(s){o(r=>(r.add(s),localStorage.setItem("betweenle:wins",JSON.stringify(Array.from(r))),r))}}};export{l as c};
