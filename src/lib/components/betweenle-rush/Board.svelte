@@ -5,6 +5,19 @@
 	import SimpleLetter from './SimpleLetter.svelte';
 
 	$: renderedAttempt = ($store.attempt + '•').padEnd(5).substring(0, 5);
+	$: correctAmount = $store.guesses.filter((x) => x === 'correct').length;
+
+	let previousCorrect = 0;
+	let animate = false;
+
+	$: {
+		if (correctAmount > previousCorrect) {
+			animate = true;
+			setTimeout(() => {
+				animate = false;
+			}, 300);
+		}
+	}
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -28,7 +41,7 @@
 			{/each}
 		</div>
 	</div>
-	<div class="score">{$store.guesses.filter((x) => x === 'correct').length}</div>
+	<div class="score" class:animate>{correctAmount}</div>
 </section>
 
 <style>
@@ -72,5 +85,21 @@
 		display: grid;
 		grid-template-columns: 4rem 22rem 4rem;
 		gap: 1rem;
+	}
+
+	.animate {
+		animation: score 0.3s;
+	}
+
+	@keyframes score {
+		0% {
+			transform: scale(1);
+		}
+		50% {
+			filter: brightness(1.5);
+		}
+		100% {
+			transform: scale(1);
+		}
 	}
 </style>
