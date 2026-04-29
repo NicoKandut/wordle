@@ -3,30 +3,22 @@
 </script>
 
 <header>
-	<div>
+	
 		<a href="{base}/">Home</a>
 		<span />
 		<a href="{base}/betweenle">Betweenle</a>
 		<a href="{base}/pokedexle">Pokedexle</a>
-	</div>
 </header>
 
 <style>
-	div {
-		display: flex;
-		align-items: center;
-		width: 100%;
-		max-width: 800px;
-	}
 
-	header {
+	header {		
 		background-color: lightgray;
-		align-self: stretch;
-		text-align: center;
-		padding: 1rem;
+		width: 100%;
 		display: flex;
-		justify-content: center;
-	}
+		text-align: center;	
+		padding: 1rem;
+	}	
 
 	a {
 		font-weight: bold;

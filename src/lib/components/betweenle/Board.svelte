@@ -34,7 +34,7 @@
 <style>
 	div {
 		display: flex;
-		gap: 0.5rem;
+		gap: var(--column-gap);
 	}
 
 	div.board {
@@ -42,9 +42,10 @@
 		align-items: center;
 	}
 
-	section {
+	section {	
 		display: grid;
-		grid-template-columns: 4rem 22rem 4rem;
-		gap: 1rem;
+		grid-template-columns: var(--column-size) calc(5 * var(--column-size) + 4 * var(--column-gap));
+		gap: var(--column-gap);	
+		max-width: 100%;
 	}
 </style>

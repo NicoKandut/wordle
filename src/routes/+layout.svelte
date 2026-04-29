@@ -36,5 +36,10 @@
 		justify-content: center;
 		font-weight: bold;
 		color: gray;
+		width: 100%;
+	}
+
+	:global(body), :global(html) {
+		width: 100vw;
 	}
 </style>

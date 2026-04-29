@@ -41,9 +41,11 @@
 
 <style>
 	div {
-		display: grid;
-		gap: 0.5rem;
-		grid-template-columns: repeat(13, 1fr);
+		display: flex;
+		gap: var(--column-gap);
+		flex-wrap: wrap;
+		width: min(100%, calc(13 * 2rem + 12 * var(--column-gap)));
+		justify-content: center;
 	}
 
 	button {

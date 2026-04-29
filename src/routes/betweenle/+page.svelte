@@ -47,11 +47,22 @@
 </section>
 
 <style>
+	:global(:root) {
+		--nr-columns: 6;
+		--nr-gaps: calc(var(--nr-columns) - 1);
+		--column-gap: min(0.5rem, calc(100vw / 54));
+		--column-size: min(4rem, calc(100vw - var(--nr-gaps) * var(--column-gap)) / var(--nr-columns));
+		--fs-letter: min(32px, var(--column-size) * 0.5);
+		--fs-meter: min(18px, var(--column-size) * 0.25);
+	}
+
 	section {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 1rem;
+		width: 100%;
+		padding-inline: var(--column-gap);
 	}
 
 	.hidden {

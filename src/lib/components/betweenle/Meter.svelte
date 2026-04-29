@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { compact } from '$lib/number-format';
 	import store from '$lib/components/betweenle/betweenle.store';
-	import { typeableWords } from '$lib/words';
 
-	$: markerPercent = ($store.distanceUpper / ($store.distanceUpper + $store.distanceLower)) * 100;
-	$: percentUpper = ($store.distanceUpper / typeableWords.length) * 100;
-	$: percentLower = ($store.distanceLower / typeableWords.length) * 100;
+	$: markerPercent = ($store.distanceUpper / ($store.distanceUpper + $store.distanceLower)) * 100;;
 </script>
 
 <div class="meter">
 	<span>
-		{$store.visible ? compact(percentUpper) : '?'}
+		{$store.visible ? compact($store.distanceUpper) : '?'}
 	</span>
 	<div class="connector">
 		<div class="line"></div>
@@ -19,7 +16,7 @@
 		{/if}
 	</div>
 	<span>
-		{$store.visible ? compact(percentLower) : '?'}
+		{$store.visible ? compact($store.distanceLower) : '?'}
 	</span>
 </div>
 
@@ -65,11 +62,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 4rem;
-		height: 3rem;
+		width: var(--column-size);
+		height: calc(0.75 * var(--column-size));
 		background-color: dodgerblue;
 		color: white;
-		font-size: 18px;
+		font-size: var(--fs-meter);
 		font-weight: bold;
 	}
 

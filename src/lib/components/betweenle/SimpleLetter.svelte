@@ -9,11 +9,11 @@
 		background-color: dodgerblue;
 		box-sizing: border-box;
 		display: flex;
-		width: 4rem;
-		height: 4rem;
+		width: var(--column-size);
+		height: var(--column-size);
 		align-items: center;
 		justify-content: center;
-		font-size: 32px;
+		font-size: var(--fs-letter);
 		font-weight: bold;
 		text-transform: uppercase;
 		color: white;
